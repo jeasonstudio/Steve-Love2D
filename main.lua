@@ -17,7 +17,7 @@ function love.load()
 
     --设置64px(像素)为1米,box2d使用实际的物理体系单位
     love.physics.setMeter(64)
-    world = love.physics.newWorld( 0, 15*64, true )
+    world = love.physics.newWorld( 0, 20*64, true )
     objects = {}
 
     --创建地面
@@ -42,7 +42,7 @@ function love.keypressed(key)
 
     SteveX, SteveY = objects.steve.body:getLinearVelocity()
     if love.keyboard.isDown("space") and objects.steve.body:getY() >= (winHeight*0.85-50) then
-        objects.steve.body:setLinearVelocity(0, -500)
+        objects.steve.body:setLinearVelocity(0, -600)
     end
 end
 
@@ -50,12 +50,12 @@ function love.update(dt)
     world:update(dt)
 
     if px1 < winWidth + groundWidth/2 then    
-        px1 = px1 + dt * dw * 0.1
+        px1 = px1 + dt * dw * 0.2
     else
         px1 = px2 - winWidth
     end
     if px2 < winWidth + groundWidth/2 then
-        px2 = px2 + dt * dw * 0.1
+        px2 = px2 + dt * dw * 0.2
     else
         px2 = px1 - winWidth
     end
