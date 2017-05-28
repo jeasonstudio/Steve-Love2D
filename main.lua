@@ -117,9 +117,6 @@ function love.draw()
     love.graphics.draw(Cloud, cx2, cy2, 0, 1, 1)
     love.graphics.setBackgroundColor(255, 255, 255)
 
-
-
-
     -- can be deleted
     love.graphics.print("Current FPS: "..tostring(love.timer.getFPS( )), 10, 10)
     local delta = love.timer.getAverageDelta()
