@@ -6,15 +6,28 @@ function love.load()
 
     Steve = love.graphics.newImage('images/dragon.png')
     Ground = love.graphics.newImage('images/ground.png')
+    Cloud = love.graphics.newImage('images/cloud.png')
 
+    -- ground parmas
     groundWidth=Ground:getWidth()
     groundHeight=Ground:getHeight()
-
     px1 = 0
     py1 = (winHeight*0.85 + 25)
     px2 = px1 + groundWidth - 100
     py2 = py1
     dw = groundWidth * 0.2
+
+    -- cloud parmas
+    cx1 = winWidth + love.math.random(100, 400)
+    cx2 = winWidth + love.math.random(200, 500)
+    cx3 = winWidth + love.math.random(300, 600)
+    cx4 = winWidth + love.math.random(400, 700)
+    cy1 = love.math.random(winHeight*0.2, winHeight*0.7)
+    cy2 = love.math.random(winHeight*0.2, winHeight*0.7)
+    cy3 = love.math.random(winHeight*0.2, winHeight*0.7)
+    cy4 = love.math.random(winHeight*0.2, winHeight*0.7)
+    cloudMove = 90
+
 
     --设置64px(像素)为1米,box2d使用实际的物理体系单位
     love.physics.setMeter(64)
@@ -42,9 +55,10 @@ function love.keypressed(key)
     end
 
     SteveX, SteveY = objects.steve.body:getLinearVelocity()
-    if love.keyboard.isDown("space") and objects.steve.body:getY() >= (winHeight*0.85-50) and GAME_STATUS == 'started' then
+    if love.keyboard.isDown("space") and objects.steve.body:getY() >= (winHeight*0.85-50) then
         objects.steve.body:setLinearVelocity(0, -600)
-    else
+    end
+    if (GAME_STATUS == 'ready' or GAME_STATUS == 'end') and love.keyboard.isDown("space") then
         GAME_STATUS = 'started'
     end
 end
@@ -53,6 +67,7 @@ function love.update(dt)
     world:update(dt)
 
     if GAME_STATUS == 'started' then
+        -- UnderGround move start
         if px1 > -groundWidth/2 then
             px1 = px1 - dt * dw
         else
@@ -63,16 +78,49 @@ function love.update(dt)
         else
             px2 = px1 + groundWidth - 100
         end
+        -- UnderGround move end
+
+        -- Cloud Move Start
+        if cx1 > -120 then
+            cx1 = cx1 - dt * cloudMove
+        else
+            cx1 = winWidth + love.math.random(100, 400)
+            cy1 = love.math.random(winHeight*0.2, winHeight*0.7)
+        end
+        if cx2 > -120 then
+            cx2 = cx2 - dt * cloudMove
+        else
+            cx2 = winWidth + love.math.random(200, 500)
+            cy2 = love.math.random(winHeight*0.2, winHeight*0.7)
+        end
+        if cx3 > -120 then
+            cx3 = cx3 - dt * cloudMove
+        else
+            cx3 = winWidth + love.math.random(300, 600)
+            cy3 = love.math.random(winHeight*0.2, winHeight*0.7)
+        end
+        if cx4 > -120 then
+            cx4 = cx4 - dt * cloudMove
+        else
+            cx4 = winWidth + love.math.random(400, 700)
+            cy4 = love.math.random(winHeight*0.2, winHeight*0.7)
+        end
+        -- Cloud Move End
     end
 end
 
 function love.draw()
     love.graphics.draw(Steve, objects.steve.body:getX(), objects.steve.body:getY())
-    -- love.graphics.draw(Ground, 0, winHeight*0.85 + 15)
     love.graphics.draw(Ground, px1, py1, 0, 1, 1, groundWidth/2, groundHeight/2)
     love.graphics.draw(Ground, px2, py2, 0, 1, 1, groundWidth/2, groundHeight/2)
+    love.graphics.draw(Cloud, cx1, cy1, 0, 1, 1)
+    love.graphics.draw(Cloud, cx2, cy2, 0, 1, 1)
     love.graphics.setBackgroundColor(255, 255, 255)
 
+
+
+
+    -- can be deleted
     love.graphics.print("Current FPS: "..tostring(love.timer.getFPS( )), 10, 10)
     local delta = love.timer.getAverageDelta()
     love.graphics.print(string.format("Average frame time: %.3f ms", 1000 * delta), 10, 25)
