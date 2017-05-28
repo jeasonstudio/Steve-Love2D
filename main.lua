@@ -1,4 +1,5 @@
 function love.load()
+    GAME_STATUS = 'ready'   -- ready started end
 
     winWidth = love.graphics.getWidth()
     winHeight = love.graphics.getHeight()
@@ -11,9 +12,9 @@ function love.load()
 
     px1 = 0
     py1 = (winHeight*0.85 + 25)
-    px2 = px1 - winWidth
+    px2 = px1 + groundWidth - 100
     py2 = py1
-    dw = groundWidth
+    dw = groundWidth * 0.2
 
     --设置64px(像素)为1米,box2d使用实际的物理体系单位
     love.physics.setMeter(64)
@@ -41,23 +42,27 @@ function love.keypressed(key)
     end
 
     SteveX, SteveY = objects.steve.body:getLinearVelocity()
-    if love.keyboard.isDown("space") and objects.steve.body:getY() >= (winHeight*0.85-50) then
+    if love.keyboard.isDown("space") and objects.steve.body:getY() >= (winHeight*0.85-50) and GAME_STATUS == 'started' then
         objects.steve.body:setLinearVelocity(0, -600)
+    else
+        GAME_STATUS = 'started'
     end
 end
 
 function love.update(dt)
     world:update(dt)
 
-    if px1 < winWidth + groundWidth/2 then    
-        px1 = px1 + dt * dw * 0.2
-    else
-        px1 = px2 - winWidth
-    end
-    if px2 < winWidth + groundWidth/2 then
-        px2 = px2 + dt * dw * 0.2
-    else
-        px2 = px1 - winWidth
+    if GAME_STATUS == 'started' then
+        if px1 > -groundWidth/2 then
+            px1 = px1 - dt * dw
+        else
+            px1 = px2 + groundWidth - 100
+        end
+        if px2 > -groundWidth/2 then
+            px2 = px2 - dt * dw
+        else
+            px2 = px1 + groundWidth - 100
+        end
     end
 end
 
