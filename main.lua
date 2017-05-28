@@ -8,6 +8,27 @@ function love.load()
     Ground = love.graphics.newImage('images/ground.png')
     Cloud = love.graphics.newImage('images/cloud.png')
 
+    treePathArr = {
+        "images/trees/bbt.png",
+        "images/trees/bt1.png",
+        "images/trees/bt2.png",
+        "images/trees/bt3.png",
+        "images/trees/bt4.png",
+        "images/trees/st1.png",
+        "images/trees/st2.png",
+        "images/trees/st3.png",
+        "images/trees/st4.png",
+        "images/trees/st5.png",
+        "images/trees/st6.png"
+    }
+    treeItem1 = love.graphics.newImage(treePathArr[love.math.random(0, 10)])
+    treeItem2 = love.graphics.newImage(treePathArr[love.math.random(0, 10)])
+    tx1 = winWidth + 100
+    tx2 = tx1 + winWidth * 0.9
+    ty1 = winHeight - treeItem1:getHeight()
+    ty2 = winHeight - treeItem2:getHeight()
+    treeMove = 500
+
     -- ground parmas
     groundWidth=Ground:getWidth()
     groundHeight=Ground:getHeight()
@@ -15,7 +36,7 @@ function love.load()
     py1 = (winHeight*0.85 + 25)
     px2 = px1 + groundWidth - 100
     py2 = py1
-    dw = groundWidth * 0.2
+    dw = 500
 
     -- cloud parmas
     cx1 = winWidth + love.math.random(100, 400)
@@ -106,6 +127,21 @@ function love.update(dt)
             cy4 = love.math.random(winHeight*0.2, winHeight*0.7)
         end
         -- Cloud Move End
+
+        -- Tree Move Start
+        if tx1 < -50 then
+            tx1 = tx2 + winWidth * 0.9
+            treeItem1 = love.graphics.newImage(treePathArr[love.math.random(0, 10)])
+        else 
+            tx1 = tx1 - dt * treeMove
+        end
+        if tx2 < -50 then
+            tx2 = tx1 + winWidth * 0.9
+            treeItem2 = love.graphics.newImage(treePathArr[love.math.random(0, 10)])
+        else 
+            tx2 = tx2 - dt * treeMove
+        end
+        -- Tree Move End
     end
 end
 
@@ -116,6 +152,9 @@ function love.draw()
     love.graphics.draw(Cloud, cx1, cy1, 0, 1, 1)
     love.graphics.draw(Cloud, cx2, cy2, 0, 1, 1)
     love.graphics.setBackgroundColor(255, 255, 255)
+    
+    love.graphics.draw(treeItem1, tx1, ty1, 0, 1, 1)
+    love.graphics.draw(treeItem1, tx2, ty2, 0, 1, 1)
 
     -- can be deleted
     love.graphics.print("Current FPS: "..tostring(love.timer.getFPS( )), 10, 10)
