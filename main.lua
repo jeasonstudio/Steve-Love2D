@@ -11,6 +11,9 @@ function getIntPart(x)
     return x
 end
 
+SPEED_G = 500
+SPEED_SLOW = 90
+
 function love.load()
     GAME_STATUS = 'ready'   -- ready started end
 
@@ -34,13 +37,13 @@ function love.load()
         "images/trees/st5.png",
         "images/trees/st6.png"
     }
-    treeItem1 = love.graphics.newImage(treePathArr[love.math.random(0, 10)])
-    treeItem2 = love.graphics.newImage(treePathArr[love.math.random(0, 10)])
+    treeItem1 = love.graphics.newImage(treePathArr[love.math.random(1, #treePathArr)])
+    treeItem2 = love.graphics.newImage(treePathArr[love.math.random(1, #treePathArr)])
     tx1 = winWidth + 100
     tx2 = tx1 + winWidth * 0.9
-    ty1 = winHeight - treeItem1:getHeight()
-    ty2 = winHeight - treeItem2:getHeight()
-    treeMove = 500
+    ty1 = winHeight - 30 -- winHeight - treeItem1:getHeight()
+    ty2 = winHeight - 30 -- winHeight - treeItem2:getHeight()
+    treeMove = SPEED_G
 
     -- ground parmas
     groundWidth=Ground:getWidth()
@@ -49,7 +52,7 @@ function love.load()
     py1 = (winHeight*0.85 + 25)
     px2 = px1 + groundWidth - 100
     py2 = py1
-    dw = 500
+    dw = SPEED_G
 
     -- cloud parmas
     cx1 = winWidth + love.math.random(100, 400)
@@ -60,26 +63,38 @@ function love.load()
     cy2 = love.math.random(winHeight*0.2, winHeight*0.7)
     cy3 = love.math.random(winHeight*0.2, winHeight*0.7)
     cy4 = love.math.random(winHeight*0.2, winHeight*0.7)
-    cloudMove = 90
+    cloudMove = SPEED_SLOW
 
 
-    --设置64px(像素)为1米,box2d使用实际的物理体系单位
+    -- 设置64px(像素)为1米,box2d使用实际的物理体系单位
     love.physics.setMeter(64)
     world = love.physics.newWorld( 0, 20*64, true )
     objects = {}
 
-    --创建地面
+    -- 创建地面
     objects.ground = {}
-    objects.ground.body = love.physics.newBody(world, winWidth/2, winHeight*0.85 - 10)
-    objects.ground.shape = love.physics.newRectangleShape(winWidth, 1)
+    objects.ground.body = love.physics.newBody(world, winWidth/2, winHeight + 20)
+    objects.ground.shape = love.physics.newRectangleShape(winWidth*10, 1)
     objects.ground.fixture = love.physics.newFixture(objects.ground.body, objects.ground.shape)
 
-    --创建Steve
+    -- 创建Steve
     objects.steve = {}
-    objects.steve.body = love.physics.newBody(world, winWidth*0.1, winHeight/4, "dynamic")
+    objects.steve.body = love.physics.newBody(world, winWidth*0.14, winHeight/2, "dynamic")
     objects.steve.shape = love.physics.newRectangleShape(Steve:getWidth(), Steve:getHeight())
     objects.steve.fixture = love.physics.newFixture(objects.steve.body, objects.steve.shape, 200)
     objects.steve.fixture:setRestitution(0) --反弹系数
+
+    -- 创建障碍物1
+    objects.tree1 = {}
+    objects.tree1.body = love.physics.newBody(world, winWidth + 100, winHeight + 20, "dynamic")
+    objects.tree1.shape = love.physics.newRectangleShape(treeItem1:getWidth(), treeItem1:getHeight())
+    objects.tree1.fixture = love.physics.newFixture(objects.tree1.body, objects.tree1.shape, 0)
+
+    -- 创建障碍物2
+    objects.tree2 = {}
+    objects.tree2.body = love.physics.newBody(world, winWidth * 1.9, winHeight + 20, "dynamic")
+    objects.tree2.shape = love.physics.newRectangleShape(treeItem2:getWidth(), treeItem2:getHeight())
+    objects.tree2.fixture = love.physics.newFixture(objects.tree2.body, objects.tree2.shape, 0)
 
 end
 
@@ -89,11 +104,12 @@ function love.keypressed(key)
     end
 
     SteveX, SteveY = objects.steve.body:getLinearVelocity()
-    if love.keyboard.isDown("space") and objects.steve.body:getY() >= (winHeight*0.85-60) then
+    if love.keyboard.isDown("space") and objects.steve.body:getY() >= (winHeight-30) then
         objects.steve.body:setLinearVelocity(0, -600)
     end
     if (GAME_STATUS == 'ready' or GAME_STATUS == 'end') and love.keyboard.isDown("space") then
         GAME_STATUS = 'started'
+        objects.tree1.body:setLinearVelocity(-SPEED_G, 0)
     end
 end
 
@@ -147,20 +163,27 @@ function love.update(dt)
         -- Cloud Move End
 
         -- Tree Move Start
-        if tx1 < -50 then
-            tx1 = tx2 + winWidth * 0.9
-        else 
-            tx1 = tx1 - dt * treeMove
+        if objects.tree1.body:getX() < -50 then
+            objects.tree1.body:setX(objects.tree2.body:getX() + winWidth * 0.9)
+            treeItem1 = love.graphics.newImage(treePathArr[love.math.random(1, #treePathArr)])
+        else
+            -- tx1 = tx1 - dt * treeMove
+            objects.tree1.body:setLinearVelocity(-SPEED_G, 0)
+
         end
-        if tx2 < -50 then
-            tx2 = tx1 + winWidth * 0.9
-        else 
-            tx2 = tx2 - dt * treeMove
+        -- objects.tree1.body:setX(tx1)
+        if objects.tree2.body:getX() < -50 then
+            objects.tree2.body:setX(objects.tree1.body:getX() + winWidth * 0.9)
+            treeItem2 = love.graphics.newImage(treePathArr[love.math.random(1, #treePathArr)])
+        else
+            -- tx2 = tx2 - dt * treeMove
+            objects.tree2.body:setLinearVelocity(-SPEED_G, 0)
         end
+        -- objects.tree2.body:setX(tx2)
         -- Tree Move End
 
         -- Steve Animation Start
-        if objects.steve.body:getY() < (winHeight*0.85-60) then
+        if objects.steve.body:getY() < (winHeight-30) then
             Steve = love.graphics.newImage('images/steves/normal.png')
         elseif getIntPart(dtotal * 10) % 2 == 0 then
             Steve = love.graphics.newImage('images/steves/left.png')
@@ -172,19 +195,22 @@ function love.update(dt)
 end
 
 function love.draw()
-    love.graphics.draw(Steve, objects.steve.body:getX(), objects.steve.body:getY())
+    love.graphics.draw(Steve, objects.steve.body:getX(), objects.steve.body:getY(), 0, 1, 1, Steve:getWidth()/2, Steve:getHeight())
     love.graphics.draw(Ground, px1, py1, 0, 1, 1, groundWidth/2, groundHeight/2)
     love.graphics.draw(Ground, px2, py2, 0, 1, 1, groundWidth/2, groundHeight/2)
-    love.graphics.draw(Cloud, cx1, cy1, 0, 1, 1)
-    love.graphics.draw(Cloud, cx2, cy2, 0, 1, 1)
+    love.graphics.draw(Cloud, cx1, cy1, 0, 1, 1, Cloud:getWidth()/2, Cloud:getHeight()/2)
+    love.graphics.draw(Cloud, cx2, cy2, 0, 1, 1, Cloud:getWidth()/2, Cloud:getHeight()/2)
     -- love.graphics.setBackgroundColor(255, 255, 255)
     
-    love.graphics.draw(treeItem1, tx1, ty1, 0, 1, 1)
-    love.graphics.draw(treeItem1, tx2, ty2, 0, 1, 1)
+    love.graphics.draw(treeItem1, objects.tree1.body:getX(), objects.tree1.body:getY(), 0, 1, 1, treeItem1:getWidth()/2, treeItem1:getHeight())
+    love.graphics.draw(treeItem2, objects.tree2.body:getX(), objects.tree2.body:getY(), 0, 1, 1, treeItem2:getWidth()/2, treeItem2:getHeight())
 
     -- can be deleted
-    love.graphics.print("Current FPS: "..tostring(love.timer.getFPS( )), 10, 10)
+    -- love.graphics.setColor(0, 0, 0)
+    love.graphics.print("Current FPS: "..tostring(love.timer.getFPS()), 10, 10)
     local delta = love.timer.getAverageDelta()
     love.graphics.print(string.format("Average frame time: %.3f ms, %.3f", 1000 * delta,dtotal), 10, 25)
-    love.graphics.print(string.format("Steve location: ( %d , %d )", objects.steve.body:getX(), objects.steve.body:getY()), 10, 50)
+    love.graphics.print(string.format("Steve location: ( %d , %d )", objects.steve.body:getX(), objects.steve.body:getY()), 10, 40)
+    love.graphics.print(string.format("Tree1 location: ( %d , %d )", objects.tree1.body:getX(), objects.tree1.body:getY()), 10, 55)
+    love.graphics.print(string.format("Tree2 location: ( %d , %d )", objects.tree2.body:getX(), objects.tree2.body:getY()), 10, 70)
 end
