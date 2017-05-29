@@ -1,10 +1,23 @@
+function getIntPart(x)
+    if x <= 0 then
+        return math.ceil(x)
+    end
+
+    if math.ceil(x) == x then
+        x = math.ceil(x)
+    else
+        x = math.ceil(x) - 1
+    end
+    return x
+end
+
 function love.load()
     GAME_STATUS = 'ready'   -- ready started end
 
     winWidth = love.graphics.getWidth()
     winHeight = love.graphics.getHeight()
 
-    Steve = love.graphics.newImage('images/dragon.png')
+    Steve = love.graphics.newImage('images/steves/normal.png')
     Ground = love.graphics.newImage('images/ground.png')
     Cloud = love.graphics.newImage('images/cloud.png')
 
@@ -57,14 +70,14 @@ function love.load()
 
     --创建地面
     objects.ground = {}
-    objects.ground.body = love.physics.newBody(world, winWidth/2, winHeight*0.85)
+    objects.ground.body = love.physics.newBody(world, winWidth/2, winHeight*0.85 - 10)
     objects.ground.shape = love.physics.newRectangleShape(winWidth, 1)
     objects.ground.fixture = love.physics.newFixture(objects.ground.body, objects.ground.shape)
 
     --创建Steve
     objects.steve = {}
     objects.steve.body = love.physics.newBody(world, winWidth*0.1, winHeight/4, "dynamic")
-    objects.steve.shape = love.physics.newRectangleShape(70, 75)
+    objects.steve.shape = love.physics.newRectangleShape(Steve:getWidth(), Steve:getHeight())
     objects.steve.fixture = love.physics.newFixture(objects.steve.body, objects.steve.shape, 200)
     objects.steve.fixture:setRestitution(0) --反弹系数
 
@@ -76,7 +89,7 @@ function love.keypressed(key)
     end
 
     SteveX, SteveY = objects.steve.body:getLinearVelocity()
-    if love.keyboard.isDown("space") and objects.steve.body:getY() >= (winHeight*0.85-50) then
+    if love.keyboard.isDown("space") and objects.steve.body:getY() >= (winHeight*0.85-60) then
         objects.steve.body:setLinearVelocity(0, -600)
     end
     if (GAME_STATUS == 'ready' or GAME_STATUS == 'end') and love.keyboard.isDown("space") then
@@ -84,10 +97,15 @@ function love.keypressed(key)
     end
 end
 
+-- this keeps track of how much time has passed
+dtotal = 0
+
 function love.update(dt)
     world:update(dt)
 
     if GAME_STATUS == 'started' then
+        dtotal = dtotal + dt
+
         -- UnderGround move start
         if px1 > -groundWidth/2 then
             px1 = px1 - dt * dw
@@ -131,17 +149,25 @@ function love.update(dt)
         -- Tree Move Start
         if tx1 < -50 then
             tx1 = tx2 + winWidth * 0.9
-            treeItem1 = love.graphics.newImage(treePathArr[love.math.random(0, 10)])
         else 
             tx1 = tx1 - dt * treeMove
         end
         if tx2 < -50 then
             tx2 = tx1 + winWidth * 0.9
-            treeItem2 = love.graphics.newImage(treePathArr[love.math.random(0, 10)])
         else 
             tx2 = tx2 - dt * treeMove
         end
         -- Tree Move End
+
+        -- Steve Animation Start
+        if objects.steve.body:getY() < (winHeight*0.85-60) then
+            Steve = love.graphics.newImage('images/steves/normal.png')
+        elseif getIntPart(dtotal * 10) % 2 == 0 then
+            Steve = love.graphics.newImage('images/steves/left.png')
+        else
+            Steve = love.graphics.newImage('images/steves/right.png')
+        end
+        -- Steve Animation End
     end
 end
 
@@ -151,7 +177,7 @@ function love.draw()
     love.graphics.draw(Ground, px2, py2, 0, 1, 1, groundWidth/2, groundHeight/2)
     love.graphics.draw(Cloud, cx1, cy1, 0, 1, 1)
     love.graphics.draw(Cloud, cx2, cy2, 0, 1, 1)
-    love.graphics.setBackgroundColor(255, 255, 255)
+    -- love.graphics.setBackgroundColor(255, 255, 255)
     
     love.graphics.draw(treeItem1, tx1, ty1, 0, 1, 1)
     love.graphics.draw(treeItem1, tx2, ty2, 0, 1, 1)
@@ -159,6 +185,6 @@ function love.draw()
     -- can be deleted
     love.graphics.print("Current FPS: "..tostring(love.timer.getFPS( )), 10, 10)
     local delta = love.timer.getAverageDelta()
-    love.graphics.print(string.format("Average frame time: %.3f ms", 1000 * delta), 10, 25)
-    love.graphics.print(string.format("Ball location: ( %d , %d )", objects.steve.body:getX(), objects.steve.body:getY()), 10, 50)
+    love.graphics.print(string.format("Average frame time: %.3f ms, %.3f", 1000 * delta,dtotal), 10, 25)
+    love.graphics.print(string.format("Steve location: ( %d , %d )", objects.steve.body:getX(), objects.steve.body:getY()), 10, 50)
 end
