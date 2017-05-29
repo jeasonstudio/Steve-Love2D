@@ -203,7 +203,7 @@ function love.draw()
     love.graphics.draw(Ground, px2, py2, 0, 1, 1, groundWidth/2, groundHeight/2)
     love.graphics.draw(Cloud, cx1, cy1, 0, 1, 1, Cloud:getWidth()/2, Cloud:getHeight()/2)
     love.graphics.draw(Cloud, cx2, cy2, 0, 1, 1, Cloud:getWidth()/2, Cloud:getHeight()/2)
-    -- love.graphics.setBackgroundColor(255, 255, 255)
+    love.graphics.setBackgroundColor(255, 255, 255)
     
     love.graphics.draw(treeItem1, objects.tree1.body:getX(), objects.tree1.body:getY(), 0, 1, 1, treeItem1:getWidth()/2, treeItem1:getHeight())
     love.graphics.draw(treeItem2, objects.tree2.body:getX(), objects.tree2.body:getY(), 0, 1, 1, treeItem2:getWidth()/2, treeItem2:getHeight())
