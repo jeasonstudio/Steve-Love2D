@@ -81,6 +81,7 @@ function love.load()
     objects.steve = {}
     objects.steve.body = love.physics.newBody(world, winWidth*0.14, winHeight/2, "dynamic")
     objects.steve.shape = love.physics.newRectangleShape(Steve:getWidth(), Steve:getHeight())
+    -- objects.steve.contact = love.physics.
     objects.steve.fixture = love.physics.newFixture(objects.steve.body, objects.steve.shape, 200)
     objects.steve.fixture:setRestitution(0) --反弹系数
 
@@ -192,6 +193,8 @@ function love.update(dt)
         end
         -- Steve Animation End
     end
+
+    -- if World:getContactFilter()
 end
 
 function love.draw()
@@ -206,11 +209,12 @@ function love.draw()
     love.graphics.draw(treeItem2, objects.tree2.body:getX(), objects.tree2.body:getY(), 0, 1, 1, treeItem2:getWidth()/2, treeItem2:getHeight())
 
     -- can be deleted
-    -- love.graphics.setColor(0, 0, 0)
     love.graphics.print("Current FPS: "..tostring(love.timer.getFPS()), 10, 10)
     local delta = love.timer.getAverageDelta()
-    love.graphics.print(string.format("Average frame time: %.3f ms, %.3f", 1000 * delta,dtotal), 10, 25)
+    love.graphics.print(string.format("Average frame time: %.3f ms, %.3f", 1000 * delta, dtotal), 10, 25)
     love.graphics.print(string.format("Steve location: ( %d , %d )", objects.steve.body:getX(), objects.steve.body:getY()), 10, 40)
     love.graphics.print(string.format("Tree1 location: ( %d , %d )", objects.tree1.body:getX(), objects.tree1.body:getY()), 10, 55)
     love.graphics.print(string.format("Tree2 location: ( %d , %d )", objects.tree2.body:getX(), objects.tree2.body:getY()), 10, 70)
+    -- local contacts = world.getContactList(world)
+    -- love.graphics.print("Worlds Contacts num : "..contacts["steve"], 10, 85)
 end
