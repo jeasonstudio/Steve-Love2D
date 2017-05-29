@@ -194,7 +194,9 @@ function love.update(dt)
         -- Steve Animation End
     end
 
-    -- if World:getContactFilter()
+    if world:getContactCount() >= 4 then
+        GAME_STATUS = 'end'
+    end
 end
 
 function love.draw()
@@ -215,6 +217,4 @@ function love.draw()
     love.graphics.print(string.format("Steve location: ( %d , %d )", objects.steve.body:getX(), objects.steve.body:getY()), 10, 40)
     love.graphics.print(string.format("Tree1 location: ( %d , %d )", objects.tree1.body:getX(), objects.tree1.body:getY()), 10, 55)
     love.graphics.print(string.format("Tree2 location: ( %d , %d )", objects.tree2.body:getX(), objects.tree2.body:getY()), 10, 70)
-    -- local contacts = world.getContactList(world)
-    -- love.graphics.print("Worlds Contacts num : "..contacts["steve"], 10, 85)
 end
