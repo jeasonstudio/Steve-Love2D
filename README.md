@@ -8,3 +8,5 @@ Love 2D 是一款极为优秀的2d 游戏引擎，只是资源比较少，会对
 ![start](show/start.jpg)
 
 ![playing](show/playing.jpg)
+
+![running](show/running.jpg)
